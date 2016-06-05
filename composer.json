@@ -1,0 +1,34 @@
+{
+    "name": "php-ws-rest",
+    "description": "simple REST service",
+    "version": "0.0.1-dev",
+    "type": "library",
+    "config": {
+	   "secure-http": false
+    },
+    "source": {
+	   "type": "git",
+	   "url": "git://data.shanknet.local:/usr/local/git/composer/web/php-ws-rest/",
+	   "reference": "master"
+    },
+    "repositories": [
+    	{
+    	    "type": "composer",
+    	    "url": "http://web.shanknet.local/composer/repo"
+    	}
+    ],
+    "require": {
+	   "php-basic-patterns": "dev-master"
+    },
+    "keywords": [
+    	"REST",
+    	"webservice"
+    ],
+    "license": "GPL-3.0+",
+    "authors": [
+    	{
+    	    "name": "Claus Petersen",
+    	    "role": "Developer"
+    	}
+    ]
+}

@@ -1,0 +1,46 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "cfd16bd3c7f4c69899b89b336bfbfb50",
+    "content-hash": "61d011025320957e3fef5fd4aac4678f",
+    "packages": [
+        {
+            "name": "php-basic-patterns",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "git://data.shanknet.local:/usr/local/git/composer/base/php-basic-patterns/",
+                "reference": "master"
+            },
+            "type": "library",
+            "license": [
+                "GPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Claus Petersen",
+                    "role": "Developer"
+                }
+            ],
+            "description": "general php patterns",
+            "keywords": [
+                "basic",
+                "patterns"
+            ],
+            "time": "2016-06-04 23:19:45"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "php-basic-patterns": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
