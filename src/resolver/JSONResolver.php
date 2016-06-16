@@ -1,8 +1,5 @@
 <?php
 namespace web\ws\rest\resolver {
-	require_once('content_type_resolver.inc.php');
-	require_once('/serve/serve_json.inc.php');
-
 	use web\ws\rest\serve as servers;
 
 	class JSONResolver extends ContentTypeResolver {

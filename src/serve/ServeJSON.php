@@ -1,18 +1,16 @@
 <?php
 namespace web\ws\rest\serve {
-	require_once("serve.inc.php");
-
 	class ServeJSON implements IServe
 	{
-	    public function serveContent($data) {
+	    public function serveContent($data): string {
 	    	return json_encode($data);
 	    }
 
-	    public function getContentType() {
+	    public function getContentType(): string {
 	    	return 'application/json';
 	    }
 
-	    public function processContent($data) {
+	    public function processContent($data): array {
 	    	return json_decode($data, true);
 	    }
 	}

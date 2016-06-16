@@ -17,8 +17,24 @@
     	    "url": "http://web.shanknet.local/composer/repo"
     	}
     ],
+    "require-dev": {
+        "phpunit/phpunit": "^5.4"
+    },
     "require": {
 	   "php-basic-patterns": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "web\\ws\\rest\\exception\\": "src/exception/",
+            "web\\ws\\rest\\resolver\\": "src/resolver/",
+            "web\\ws\\rest\\serve\\": "src/serve/",
+            "web\\ws\\rest\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "web\\ws\\rest\\test\\": "tests/"
+        }
     },
     "keywords": [
     	"REST",

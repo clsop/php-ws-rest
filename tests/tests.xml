@@ -1,0 +1,13 @@
+<phpunit bootstrap="../vendor/autoload.php" beStrictAboutTestsThatDoNotTestAnything="true">
+  <testsuites>
+    <testsuite name="resolvers">
+	   <file>ContentResolverTest.php</file>
+    </testsuite>
+    <testsuite name="servers">
+	   <directory>serve</directory>
+    </testsuite>
+    <testsuite name="rest">
+      <file>ExceptionTest.php</file>
+    </testsuite>
+  </testsuites>
+</phpunit>

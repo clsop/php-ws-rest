@@ -1,11 +1,9 @@
 <?php
 namespace web\ws\rest {
-    require_once('exception/internal_server_exception.inc.php');
-    require_once('exception/endpoint_exception.inc.php');
-    require_once('resolver/content_resolver_factory.inc.php');
-
     /**
      * Base class for implementing a REST resource.
+     *
+     * debug with track_errors = On
      */
     abstract class REST {
         private static $statusCodes = [
@@ -28,8 +26,15 @@ namespace web\ws\rest {
     		503 => 'Service Unavailable'
         ];
 
-        const DEFAULT_HTTP_VERSION = '1.1';
+        const DEFAULT_HTTP_VERSION = 1.1;
         const DEFAULT_STATUS_CODE = 500;
+
+        const GET     = 'get';
+        const POST    = 'post';
+        const PUT     = 'put';
+        const DELETE  = 'delete';
+        const OPTIONS = 'options';
+        const HEAD    = 'head';
 
         private $httpVersion;
         private $contentServer;
@@ -39,7 +44,7 @@ namespace web\ws\rest {
          * Initializes the library
          * @param string $httpVersion tells which version of http to transfer with.
          */
-        public function __construct($httpVersion = REST::DEFAULT_HTTP_VERSION) {
+        public function __construct(float $httpVersion = REST::DEFAULT_HTTP_VERSION) {
             $this->contentServer = NULL;
             
             // init resolvers
@@ -50,14 +55,7 @@ namespace web\ws\rest {
             set_error_handler([$this, 'errorHandler']); 
             set_exception_handler([$this, 'exceptionHandler']);
 
-            // NOTICE: PHP 7.0 has type hint float
-    		if (is_float($httpVersion)) {
-    			$this->httpVersion = $httpVersion;
-    		} else {
-    			$this->httpVersion = REST::DEFAULT_HTTP_VERSION;
-    		}
-
-    		$this->processRequest();
+    		$this->httpVersion = $httpVersion;
         }
 
         private function processRequest() {
@@ -67,7 +65,7 @@ namespace web\ws\rest {
             $data = NULL;
             $param = NULL;
 
-            if ($method !== 'post' && in_array('param', $_REQUEST)) {
+            if ($method !== REST::POST && in_array('param', $_REQUEST)) {
                 $param = $_REQUEST['param'];
             }
             
@@ -78,15 +76,16 @@ namespace web\ws\rest {
                     break;
                 }
             }
+
+            if ($this->contentServer === NULL) {
+                throw new exception\EndPointException('Endpoint does not support any of the acceptable content.', 406);
+            }
             
             // look for data
-            if ($method !== 'get') {
+            if ($method !== REST::GET) {
                 $data = file_get_contents("php://input");
-                $server = $this->resolver->resolveType($contentType);
-
-                if ($server !== NULL) {
-                    $data = $server->processContent($data);
-                }
+                //$server = $this->resolver->resolveType($contentType);
+                $data = $this->contentServer->processContent($data);
             }
 
             if (!is_callable([$this, $method])) {
@@ -118,14 +117,15 @@ namespace web\ws\rest {
          * @param $exception exception thrown that wasn't catched
          * @return void
          */
-        public function exceptionHandler($exception) {
-            $code = $exception->getCode();
-            
-            if (\lanflix\LANFlixSettings::DEBUG) {
-                $this->serveResponse(array_key_exists($code, REST::$statusCodes) ? $code : 500, [ 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'file' => $exception->getFile(), 'line' => $exception->getLine()]);
-            } else {
-                $this->serveResponse(array_key_exists($code, REST::$statusCodes) ? $code : 500);
-                // TODO: log error
+        protected function exceptionHandler($exception) {
+            if (!call_user_func([$this, 'onException'], $exception)) {
+                $code = $exception->getCode();
+
+                if (get_cfg_var('track_errors') === 'On') {
+                    $this->serveResponse(array_key_exists($code, REST::$statusCodes) ? $code : 500, [ 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'file' => $exception->getFile(), 'line' => $exception->getLine()]);
+                } else {
+                    $this->serveResponse(array_key_exists($code, REST::$statusCodes) ? $code : 500);
+                }
             }
         }
 
@@ -135,13 +135,14 @@ namespace web\ws\rest {
          * @param $error error that occured
          * @return void
          */
-        public function errorHandler($errno, $errstr, $errfile, $errline, $errcontext) {
-            if (\lanflix\LANFlixSettings::DEBUG) {
-                $this->serveResponse(500, [ 'errno' => $errno, 'errstr' => $errstr, 'errfile' => $errfile,
-                    'errline' => $errline, 'errcontext' => $errcontext]);
-            } else {
-                $this->serveResponse(500);
-                // TODO: log error
+        protected function errorHandler($errno, $errstr, $errfile, $errline, $errcontext) {
+            if(!call_user_func_array([$this, 'onError'], [$errno, $errstr, $errfile, $errline])) {
+                if (get_cfg_var('track_errors') === 'On') {
+                    $this->serveResponse(500, [ 'errno' => $errno, 'errstr' => $errstr, 'errfile' => $errfile,
+                        'errline' => $errline, 'errcontext' => $errcontext]);
+                } else {
+                    $this->serveResponse(500);
+                }
             }
         }
 
@@ -172,6 +173,10 @@ namespace web\ws\rest {
 
         		echo($this->contentServer->serveContent($data));
         	}
+        }
+
+        public function initialize() {
+            $this->processRequest();
         }
     }
 }

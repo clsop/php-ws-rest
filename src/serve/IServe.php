@@ -13,14 +13,14 @@ namespace web\ws\rest\serve {
         * @param $data the data passed from client.
         * @returns data formatted in the serving instance
         */
-        public function serveContent($data);
+        public function serveContent($data): string;
 
         /**
          * Gets the content type for this content
          * 
          * @return string mimetype
          */
-        public function getContentType();
+        public function getContentType(): string;
 
         /**
          * Process the content delivered from client

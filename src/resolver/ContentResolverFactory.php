@@ -1,9 +1,5 @@
 <?php
 namespace web\ws\rest\resolver {
-	require_once('xml_resolver.inc.php');
-	require_once('json_resolver.inc.php');
-	require_once('formdata_resolver.inc.php');
-
 	class ContentResolverFactory {
 		use \base\Singleton;
 

@@ -1,8 +1,5 @@
 <?php
 namespace web\ws\rest\serve {
-    require_once("serve.inc.php");
-    require_once("/exception/internal_server_exception.inc.php");
-
     class ServeXML implements IServe
     {
     	private function writeElements($writer, array $data) {
@@ -41,7 +38,7 @@ namespace web\ws\rest\serve {
             $writer->endElement();
         }
 
-        public function serveContent($data)
+        public function serveContent($data): string
         {
         	$writer = new \XmlWriter();
     		$writer->openMemory();
@@ -69,11 +66,12 @@ namespace web\ws\rest\serve {
         	return $output;
         }
 
-        public function getContentType() {
+        public function getContentType(): string {
         	return 'application/xml';
         }
 
-        public function processContent($data) {
+        public function processContent($data): \SimpleXMLElement {
+            // TODO: into objects and/or arrays
         	return new \SimpleXMLElement($data);
         }
     }
