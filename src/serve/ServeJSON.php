@@ -10,7 +10,7 @@ namespace web\ws\rest\serve {
 	    	return 'application/json';
 	    }
 
-	    public function processContent($data): array {
+	    public function processContent($data) {
 	    	return json_decode($data, true);
 	    }
 	}

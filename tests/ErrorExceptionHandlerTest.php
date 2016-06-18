@@ -23,24 +23,26 @@ namespace web\ws\rest\test {
 
 		public function testOnError() {
 			// arrange
-			$mock = $this->getMockBuilder(RestErrorTest::class)->setMethods(['onError'])->getMock();
+			$mock = $this->getMockBuilder(RestErrorTest::class)
+				->setMethods(['onError'])->getMock();
 
 			// assert
 			$mock->expects($this->once())->method('onError')->willReturn(true); // true tells error has been handled
 
 			// act
-			$mock->initialize();
+			$mock->processRequest();
 		}
 
 		public function testOnException() {
 			// arrange
-			$mock = $this->getMockBuilder(RestExceptionTest::class)->setMethods(['onException'])->getMock();
+			$mock = $this->getMockBuilder(RestExceptionTest::class)
+				->setMethods(['onException'])->getMock();
 
 			// assert
 			$mock->expects($this->once())->method('onException')->willReturn(true); // true tells exception has been handled
 
 			// act
-			$mock->initialize();
+			$mock->processRequest();
 		}
 	}
 }

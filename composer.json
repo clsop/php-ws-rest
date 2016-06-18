@@ -1,7 +1,7 @@
 {
     "name": "php-ws-rest",
     "description": "simple REST service",
-    "version": "0.0.1-dev",
+    "version": "0.0.3-dev",
     "type": "library",
     "config": {
 	   "secure-http": false

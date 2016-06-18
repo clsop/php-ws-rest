@@ -3,7 +3,7 @@ namespace web\ws\rest {
     /**
      * Base class for implementing a REST resource.
      *
-     * debug with track_errors = On
+     * php: debug with track_errors = On
      */
     abstract class REST {
         private static $statusCodes = [
@@ -33,8 +33,8 @@ namespace web\ws\rest {
         const POST    = 'post';
         const PUT     = 'put';
         const DELETE  = 'delete';
-        const OPTIONS = 'options';
-        const HEAD    = 'head';
+        // const OPTIONS = 'options';
+        // const HEAD    = 'head';
 
         private $httpVersion;
         private $contentServer;
@@ -58,14 +58,14 @@ namespace web\ws\rest {
     		$this->httpVersion = $httpVersion;
         }
 
-        private function processRequest() {
+        public function processRequest() {
             $method = strtolower($_SERVER['REQUEST_METHOD']);
-            $accepts = explode(',', $_SERVER['HTTP_ACCEPT']);
+            $accepts = $this->parseAccepted();
             $contentType = $_SERVER['CONTENT_TYPE'];
             $data = NULL;
             $param = NULL;
 
-            if ($method !== REST::POST && in_array('param', $_REQUEST)) {
+            if (array_key_exists('param', $_REQUEST)) {
                 $param = $_REQUEST['param'];
             }
             
@@ -78,18 +78,17 @@ namespace web\ws\rest {
             }
 
             if ($this->contentServer === NULL) {
-                throw new exception\EndPointException('Endpoint does not support any of the acceptable content.', 406);
+                throw new exception\EndPointException(exception\ExceptionMessage::UNACCEPTED_CONTENT, 406);
             }
             
             // look for data
-            if ($method !== REST::GET) {
+            if ($method !== REST::GET && $method !== REST::DELETE) {
                 $data = file_get_contents("php://input");
-                //$server = $this->resolver->resolveType($contentType);
                 $data = $this->contentServer->processContent($data);
             }
 
             if (!is_callable([$this, $method])) {
-                throw new exception\EndPointException('Method not supported', 405);
+                throw new exception\EndPointException(exception\ExceptionMessage::UNSUPPORTED_METHOD, 405);
             }
             
             if (isset($param) && isset($data)) {
@@ -97,18 +96,20 @@ namespace web\ws\rest {
             } else if (isset($param)) {
                 call_user_func([$this, $method], $param);
             } else if (isset($data)) {
-                call_user_func([$this, $method], $data);
+                call_user_func([$this, $method], NULL, $data);
             } else {
                 call_user_func([$this, $method]);
             }
         }
 
-        private function setHeaders($statusCode = NULL) {
+        private function setHeaders(int $statusCode = 200) {
             header("HTTP/$this->httpVersion $statusCode " . REST::$statusCodes[$statusCode]);
+            header('Content-Type:' . $this->contentServer->getContentType());
+        }
 
-            if ($this->contentServer !== NULL) {
-                header('Content-Type:' . $this->contentServer->getContentType());
-            }
+        private function parseAccepted(): array {
+            // TODO: parse preffered - text/html; q=0.8, text/plain; q=0.6
+            return explode(',', $_SERVER['HTTP_ACCEPT']);
         }
 
         /**
@@ -153,30 +154,25 @@ namespace web\ws\rest {
          * @param  mixed $data array or object of data to return in body.
          * @return void
          */
-        protected function serveResponse($statusCode, $data = NULL) {
-        	if (!is_int($statusCode)) {
-        		throw new exception\InternalServerException();
-            } else if (is_array($data)) {
+        protected function serveResponse(int $statusCode, $data = NULL) {
+            if (!array_key_exists($statusCode, REST::$statusCodes))
+                throw new exception\InternalServerException(exception\ExceptionMessage::UNKNOWN_STATUS);
+
+        	if (is_array($data)) {
                 foreach ($data as $key => $value) {
                     if (is_numeric($key) || preg_match('/^[0-9]+/', $key) === 1) {
-                        throw new exception\InternalServerException('response data must be $key => $value pairs with keys non-numeric (also starting with numerics isn\'t allowed)');
+                        throw new exception\InternalServerException(exception\ExceptionMessage::INVALID_ARRAY_STRUCTURE);
                     }
                 }
             }
 
-        	$this->setHeaders($statusCode);
-        	
         	if($data !== NULL) {
-        		if ($this->contentServer === NULL) {
-                    throw new exception\EndPointException("Cannot serve content!", 204);
-                }
+                $this->setHeaders($statusCode);
 
         		echo($this->contentServer->serveContent($data));
-        	}
-        }
-
-        public function initialize() {
-            $this->processRequest();
+        	} else {
+                $this->setHeaders(204);
+            }
         }
     }
 }

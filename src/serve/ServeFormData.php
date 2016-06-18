@@ -4,8 +4,7 @@ namespace web\ws\rest\serve {
     {
         public function serveContent($data): string
         {
-            // TODO: objects and arrays to strings
-        	return urlencode('');
+            throw new \ErrorException('not implemented');
         }
 
         public function getContentType(): string {

@@ -6,8 +6,11 @@
     <testsuite name="servers">
 	   <directory>serve</directory>
     </testsuite>
-    <testsuite name="rest">
+    <testsuite name="exceptions">
       <file>ExceptionTest.php</file>
+    </testsuite>
+    <testsuite name="rest">
+      <file>HttpMethodTest.php</file>
     </testsuite>
   </testsuites>
 </phpunit>
