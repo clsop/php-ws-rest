@@ -2,9 +2,9 @@
 namespace web\ws\rest\test {
 	use PHPUnit\Framework\TestCase;
 
-	class RestOKTest extends \web\ws\rest\REST {
+	class RestParamTest extends \web\ws\rest\REST {
 		public function get($param = NULL) {
-
+			
 		}
 
 		public function post($param = NULL, $data = NULL) {
@@ -21,6 +21,8 @@ namespace web\ws\rest\test {
 	}
 
 	class HttpMethodTest extends TestCase {
+		private $rest;
+
 		public function setup() {
 			$_SERVER['HTTP_ACCEPT'] = 'application/json,application/xml';
 			$_SERVER['CONTENT_TYPE'] = 'application/json';
@@ -29,7 +31,8 @@ namespace web\ws\rest\test {
 		public function testGet() {
 			// arrange
 			$_SERVER['REQUEST_METHOD'] = 'GET';
-			$rest = $this->getMockBuilder(RestOKTest::class)
+
+			$rest = $this->getMockBuilder(RestParamTest::class)
 				->setMethods(['get'])
 				->getMock();
 
@@ -48,7 +51,7 @@ namespace web\ws\rest\test {
 			$_SERVER['REQUEST_METHOD'] = 'GET';
 			$_REQUEST['param'] = $param;
 
-			$rest = $this->getMockBuilder(RestOKTest::class)
+			$rest = $this->getMockBuilder(RestParamTest::class)
 				->setMethods(['get'])
 				->getMock();
 
@@ -64,7 +67,8 @@ namespace web\ws\rest\test {
 		public function testPost() {
 			// arrange
 			$_SERVER['REQUEST_METHOD'] = 'POST';
-			$rest = $this->getMockBuilder(RestOKTest::class)
+
+			$rest = $this->getMockBuilder(RestParamTest::class)
 				->setMethods(['post'])
 				->getMock();
 
@@ -83,7 +87,7 @@ namespace web\ws\rest\test {
 			$_SERVER['REQUEST_METHOD'] = 'POST';
 			$_REQUEST['param'] = $param;
 
-			$rest = $this->getMockBuilder(RestOKTest::class)
+			$rest = $this->getMockBuilder(RestParamTest::class)
 				->setMethods(['post'])
 				->getMock();
 
@@ -97,85 +101,129 @@ namespace web\ws\rest\test {
 		}
 
 		public function testPostWithData() {
-			// TODO: mockup request body data
-
 			// arrange
 			$_SERVER['REQUEST_METHOD'] = 'POST';
-			$rest = $this->getMockBuilder(RestOKTest::class)
-				->setMethods(['post'])
+
+			$this->rest = $this->getMockBuilder(RestParamTest::class)
+				->setMethods(['post', 'processRequest'])
 				->getMock();
+			$this->rest->method('processRequest')
+				->will($this->returnCallback(function() {
+					$server = new \web\ws\rest\serve\ServeJSON();
+					$data = '{"test1": "test1", "test2": "test2", "test3": "test3"}';
+					$this->rest->post(NULL, $server->processContent($data));
+				}));
 
 			// assert
-			// $rest->expects($this->once())
-			// 	->method('post')
-			// 	->withConsecutive([$this->isNull(), $this->attributeEqualTo('test1', "test")]);
+			$this->rest->expects($this->once())
+				->method('post')
+				->withConsecutive([$this->isNull(), $this->logicalAnd(
+					$this->arrayHasKey('test1'), $this->contains('test1'),
+					$this->arrayHasKey('test2'), $this->contains('test2'),
+					$this->arrayHasKey('test3'), $this->contains('test3')
+				)]);
 
 			// act
-			$rest->processRequest();
-			$this->markTestIncomplete('missing mockup to request body');
-		}
-
-		public function testPostWithParamAndData() {
-			// arrange
-			
-			// act
-			
-			// assert
-			$this->markTestIncomplete('not implemented');
+			$this->rest->processRequest();
 		}
 
 		public function testPut() {
 			// arrange
-			
-			// act
-			
+			$_SERVER['REQUEST_METHOD'] = 'PUT';
+
+			$rest = $this->getMockBuilder(RestParamTest::class)
+				->setMethods(['put'])
+				->getMock();
+
 			// assert
-			$this->markTestIncomplete('not implemented');
+			$rest->expects($this->once())
+				->method('put')
+				->with(NULL);
+
+			// act
+			$rest->processRequest();
 		}
 
 		public function testPutWithParam() {
 			// arrange
-			
-			// act
-			
+			$param = 1;
+			$_SERVER['REQUEST_METHOD'] = 'PUT';
+			$_REQUEST['param'] = $param;
+
+			$rest = $this->getMockBuilder(RestParamTest::class)
+				->setMethods(['put'])
+				->getMock();
+
 			// assert
-			$this->markTestIncomplete('not implemented');
+			$rest->expects($this->once())
+				->method('put')
+				->with($this->equalTo($param));
+
+			// act
+			$rest->processRequest();
 		}
 
 		public function testPutWithData() {
 			// arrange
-			
-			// act
-			
-			// assert
-			$this->markTestIncomplete('not implemented');
-		}
+			$_SERVER['REQUEST_METHOD'] = 'PUT';
 
-		public function testPutWithParamAndData() {
-			// arrange
-			
-			// act
-			
+			$this->rest = $this->getMockBuilder(RestParamTest::class)
+				->setMethods(['put', 'processRequest'])
+				->getMock();
+			$this->rest->method('processRequest')
+				->will($this->returnCallback(function() {
+					$server = new \web\ws\rest\serve\ServeJSON();
+					$data = '{"test1": "test1", "test2": "test2", "test3": "test3"}';
+					$this->rest->put(NULL, $server->processContent($data));
+				}));
+
 			// assert
-			$this->markTestIncomplete('not implemented');
+			$this->rest->expects($this->once())
+				->method('put')
+				->withConsecutive([$this->isNull(), $this->logicalAnd(
+					$this->arrayHasKey('test1'), $this->contains('test1'),
+					$this->arrayHasKey('test2'), $this->contains('test2'),
+					$this->arrayHasKey('test3'), $this->contains('test3')
+				)]);
+
+			// act
+			$this->rest->processRequest();
 		}
 
 		public function testDelete() {
 			// arrange
-			
-			// act
-			
+			$_SERVER['REQUEST_METHOD'] = 'DELETE';
+
+			$rest = $this->getMockBuilder(RestParamTest::class)
+				->setMethods(['delete'])
+				->getMock();
+
 			// assert
-			$this->markTestIncomplete('not implemented');
+			$rest->expects($this->once())
+				->method('delete')
+				->with(NULL);
+
+			// act
+			$rest->processRequest();
 		}
 
 		public function testDeleteWithParam() {
 			// arrange
-			
-			// act
-			
+			$param = 1;
+			$_SERVER['REQUEST_METHOD'] = 'DELETE';
+			$_REQUEST['param'] = $param;
+
+			$rest = $this->getMockBuilder(RestParamTest::class)
+				->setMethods(['delete'])
+				->getMock();
+
 			// assert
-			$this->markTestIncomplete('not implemented');
+			$rest->expects($this->once())
+				->method('delete')
+				->with($this->equalTo($param));
+
+			// act
+			$rest->processRequest();
 		}
 	}
 }

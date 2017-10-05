@@ -7,6 +7,7 @@
 	   <directory>serve</directory>
     </testsuite>
     <testsuite name="exceptions">
+      <file>ErrorExceptionHandlerTest.php</file>
       <file>ExceptionTest.php</file>
     </testsuite>
     <testsuite name="rest">

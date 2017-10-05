@@ -84,7 +84,10 @@ namespace web\ws\rest {
             // look for data
             if ($method !== REST::GET && $method !== REST::DELETE) {
                 $data = file_get_contents("php://input");
-                $data = $this->contentServer->processContent($data);
+
+                if (!empty($data)) {
+                    $data = $this->contentServer->processContent($data);
+                }
             }
 
             if (!is_callable([$this, $method])) {

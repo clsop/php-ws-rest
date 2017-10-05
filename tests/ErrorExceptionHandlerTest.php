@@ -39,6 +39,8 @@ namespace web\ws\rest\test {
 				->setMethods(['onException'])->getMock();
 
 			// assert
+			// TODO: check assertion
+			$this->expectException(\ErrorException::class);
 			$mock->expects($this->once())->method('onException')->willReturn(true); // true tells exception has been handled
 
 			// act

@@ -9,7 +9,7 @@
     "source": {
 	   "type": "git",
 	   "url": "git://data.shanknet.local:/usr/local/git/composer/web/php-ws-rest/",
-	   "reference": "0.0.3-dev"
+	   "reference": "master"
     },
     "repositories": [
     	{
